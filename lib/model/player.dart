@@ -6,10 +6,8 @@ class Player {
   late List<double> score;
 
   double get total {
-    return score.reduce((value, element) => value + element);
+    return score.isNotEmpty ? score.reduce((value, element) => value + element) : 0;
   }
-
-
 
   Player(this.name, this.avatarPath, this.score);
 
@@ -17,24 +15,30 @@ class Player {
     Map<String, dynamic> jsonMap = jsonDecode(json);
     name = jsonMap['name'];
     avatarPath = jsonMap['avatarPath'];
-    score = jsonMap['score'].toString().split(';').map((e)=>double.tryParse(e) ?? 0).toList();
+    score = jsonMap['score']
+        .toString()
+        .split(';')
+        .map((e) => double.tryParse(e) ?? 0)
+        .toList();
   }
-
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'avatarPath': avatarPath,
-        'score': score.map((e)=>e.toString()).join(';')
+        'score': score.map((e) => e.toString()).join(';')
       };
 
   void addScore(String? value, int index) {
     double number = double.parse(value!);
-    if(index>score.length-1) {
+    if (index > score.length - 1) {
       score.add(number);
-    }
-    else{
+    } else {
       score[index] = number;
     }
+  }
+
+  void clearScore() {
+    score = List.empty(growable: true);
   }
 }
 

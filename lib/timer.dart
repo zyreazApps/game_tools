@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:game_tools/resources/numericTextField.dart';
 
 class TimerPage extends StatefulWidget {
   const TimerPage({super.key});
@@ -42,9 +43,11 @@ class _TimerPageState extends State<TimerPage> {
       myDuration = savedDuration;
 
       hours.text = myDuration.inHours.toString().padLeft(2, '0');
-      minutes.text = myDuration.inMinutes.remainder(60).toString().padLeft(2, '0');
-      seconds.text = myDuration.inSeconds.remainder(60).toString().padLeft(2, '0');
-  });
+      minutes.text =
+          myDuration.inMinutes.remainder(60).toString().padLeft(2, '0');
+      seconds.text =
+          myDuration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    });
   }
 
   void setCountDown() {
@@ -58,8 +61,10 @@ class _TimerPageState extends State<TimerPage> {
       }
 
       hours.text = myDuration.inHours.toString().padLeft(2, '0');
-      minutes.text = myDuration.inMinutes.remainder(60).toString().padLeft(2, '0');
-      seconds.text = myDuration.inSeconds.remainder(60).toString().padLeft(2, '0');
+      minutes.text =
+          myDuration.inMinutes.remainder(60).toString().padLeft(2, '0');
+      seconds.text =
+          myDuration.inSeconds.remainder(60).toString().padLeft(2, '0');
     });
   }
 
@@ -116,22 +121,24 @@ class _TimerPageState extends State<TimerPage> {
               ],
             ),
             Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                      onPressed: (() => _startTimer()), child: Text("Start"))),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child:
-                      ElevatedButton(onPressed: (() => _stopTimer()), child: Text("Stop"))),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child:
-                      ElevatedButton(onPressed: (() => _resetCountdown()), child: Text("Reset")))
-            ],
-          )
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                        onPressed: (() => _startTimer()),
+                        child: Text("Start"))),
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                        onPressed: (() => _stopTimer()), child: Text("Stop"))),
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                        onPressed: (() => _resetCountdown()),
+                        child: Text("Reset")))
+              ],
+            )
           ],
         ),
       ),

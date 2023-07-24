@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'dart:async';
 import 'model/player.dart';
 
 class ScoreboardPage extends StatefulWidget {
@@ -13,6 +13,7 @@ class ScoreboardPage extends StatefulWidget {
 class _ScoreboardPageState extends State<ScoreboardPage> {
   List<Player> _playersList = [];
   bool _showTotals = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -30,11 +31,15 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
   }
 
   Future<void> _addScore(String? value, playerIndex, scoreIndex) async {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
     var sharedPref = await SharedPreferences.getInstance();
-    setState(() {
-      _playersList[playerIndex].addScore(value, scoreIndex);
+    _debounce = Timer(const Duration(milliseconds: 1000), () {
+      setState(() {
+        _playersList[playerIndex].addScore(value, scoreIndex);
+      });
+      sharedPref.setStringList(
+          'playersList', _playersList.convertToStringList());
     });
-    sharedPref.setStringList('playersList', _playersList.convertToStringList());
   }
 
   void _changeTotals() {
@@ -43,11 +48,21 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
     });
   }
 
-  double _getOrCreateScore(playerIndex, scoreIndex) {
+  void _clearScore() {
+    setState(() {
+      for (var player in _playersList) {
+        player.clearScore();
+      }
+    });
+  }
+
+  TextEditingController _getOrCreateScore(playerIndex, scoreIndex) {
     if (scoreIndex > _playersList[playerIndex].score.length - 1) {
       _playersList[playerIndex].addScore('0', scoreIndex);
     }
-    return _playersList[playerIndex].score[scoreIndex];
+
+    var value = _playersList[playerIndex].score[scoreIndex].toString();
+    return TextEditingController(text: value);
   }
 
   void _addRow() async {
@@ -66,9 +81,11 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
             _playersList.length,
             (cellIndex) => DataCell(
                   TextFormField(
+                    controller: _getOrCreateScore(cellIndex, rowIndex),
                     textAlign: TextAlign.center,
-                    initialValue:
-                        _getOrCreateScore(cellIndex, rowIndex).toString(),
+                    onChanged: (String? value) {
+                      _addScore(value, cellIndex, rowIndex);
+                    },
                     onFieldSubmitted: (String? value) {
                       _addScore(value, cellIndex, rowIndex);
                     },
@@ -77,7 +94,7 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
                 )),
       ),
     );
-    if(_showTotals){
+    if (_showTotals) {
       dataRows.add(DataRow(
         color: MaterialStateColor.resolveWith((states) => Colors.blue),
         cells: List<DataCell>.generate(
@@ -160,8 +177,13 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
                       onPressed: _addRow, child: Text("Add row"))),
               Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      ElevatedButton(onPressed: (() => _changeTotals()), child: Text("Sum up")))
+                  child: ElevatedButton(
+                      onPressed: (() => _changeTotals()),
+                      child: Text("Sum up"))),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                      onPressed: (() => _clearScore()), child: Text("Clear")))
             ],
           )
         ],
