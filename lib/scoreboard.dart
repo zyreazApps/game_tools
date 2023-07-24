@@ -42,12 +42,6 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
     });
   }
 
-  void _changeTotals() {
-    setState(() {
-      _showTotals = !_showTotals;
-    });
-  }
-
   void _clearScore() {
     setState(() {
       for (var player in _playersList) {
@@ -94,17 +88,19 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
                 )),
       ),
     );
-    if (_showTotals) {
-      dataRows.add(DataRow(
-        color: MaterialStateColor.resolveWith((states) => Colors.blue),
-        cells: List<DataCell>.generate(
-            _playersList.length,
-            (cellIndex) => DataCell(Center(
-                  child: Text(_playersList[cellIndex].total.toString(),
-                      textAlign: TextAlign.center),
-                ))),
-      ));
-    }
+    dataRows.add(DataRow(
+      color: MaterialStateColor.resolveWith((states) => Colors.grey),
+      cells: List<DataCell>.generate(
+          _playersList.length,
+          (cellIndex) => DataCell(Center(
+                child: Text(
+                  _playersList[cellIndex].total.toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+              ))),
+    ));
+
     return dataRows;
   }
 
@@ -113,81 +109,60 @@ class _ScoreboardPageState extends State<ScoreboardPage> {
       return const SingleChildScrollView();
     }
     return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-            columns: List<DataColumn>.generate(
-                _playersList.length,
-                (columnIndex) => DataColumn(
-                      label: Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      alignment: Alignment.center,
-                                      image: AssetImage(
-                                          _playersList[columnIndex].avatarPath),
-                                      fit: BoxFit.contain),
-                                ),
-                                alignment: Alignment.bottomCenter,
-                                child: Stack(
-                                  children: <Widget>[
-                                    // Stroked text as border.
-                                    Text(
-                                      _playersList[columnIndex].name,
-                                      style: TextStyle(
-                                        foreground: Paint()
-                                          ..style = PaintingStyle.stroke
-                                          ..strokeWidth = 6
-                                          ..color = const Color(0xFF160F29),
-                                      ),
-                                    ),
-                                    // Solid text as fill.
-                                    Text(
-                                      _playersList[columnIndex].name,
-                                      style: TextStyle(
-                                        color: const Color(0xFFF3DFC1),
-                                      ),
-                                    ),
-                                  ],
-                                ))
-                          ],
-                        ),
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+          columns: List<DataColumn>.generate(
+              _playersList.length,
+              (columnIndex) => DataColumn(
+                    label: Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                              width: 40,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    alignment: Alignment.topCenter,
+                                    image: AssetImage(
+                                        _playersList[columnIndex].avatarPath),
+                                    fit: BoxFit.fitWidth),
+                              ),
+                              alignment: Alignment.bottomCenter,
+                              child: Text(_playersList[columnIndex].name))
+                        ],
                       ),
-                    )),
-            rows: _dataRows()));
+                    ),
+                  )),
+          rows: _dataRows()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Add player',
+              onPressed: _addRow,
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              tooltip: 'Delete score',
+              onPressed: () {
+                _clearScore();
+              },
+            ),
+          ],
+        ),
         body: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          _dataTable(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          scrollDirection: Axis.vertical,
+          child: Column(
             children: [
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                      onPressed: _addRow, child: Text("Add row"))),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                      onPressed: (() => _changeTotals()),
-                      child: Text("Sum up"))),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                      onPressed: (() => _clearScore()), child: Text("Clear")))
+              _dataTable(),
             ],
-          )
-        ],
-      ),
-    ));
+          ),
+        ));
   }
 }
