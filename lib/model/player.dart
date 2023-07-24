@@ -4,17 +4,19 @@ class Player {
   late String name;
   late String avatarPath;
   late List<double> score;
+  late bool isChecked;
+
+  Player(this.name, this.avatarPath, this.score, {this.isChecked = false});
 
   double get total {
     return score.isNotEmpty ? score.reduce((value, element) => value + element) : 0;
   }
 
-  Player(this.name, this.avatarPath, this.score);
-
   Player.fromJson(String json) {
     Map<String, dynamic> jsonMap = jsonDecode(json);
     name = jsonMap['name'];
     avatarPath = jsonMap['avatarPath'];
+    isChecked = jsonMap['isChecked'];
     score = jsonMap['score']
         .toString()
         .split(';')
@@ -25,7 +27,8 @@ class Player {
   Map<String, dynamic> toJson() => {
         'name': name,
         'avatarPath': avatarPath,
-        'score': score.map((e) => e.toString()).join(';')
+        'score': score.map((e) => e.toString()).join(';'),
+        'isChecked': isChecked
       };
 
   void addScore(String? value, int index) {

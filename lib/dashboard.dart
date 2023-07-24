@@ -46,12 +46,11 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  void _removePlayer(Player player) async {
+  void _removePlayers() async {
     var sharedPref = await SharedPreferences.getInstance();
     setState(() {
-      _playersList.remove(player);
-      sharedPref.setStringList(
-          'playersList', _playersList.convertToStringList());
+      _playersList.removeWhere((player) => player.isChecked);
+      sharedPref.setStringList('playersList', _playersList.convertToStringList());
     });
   }
 
@@ -79,65 +78,28 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _card(Player player) {
-    return GestureDetector(
-        onLongPress: () {
-          setState(() {
-            // Toggle light when tapped.
-            _removePlayer(player);
-          });
-        },
-        child: Card(
-            child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage(player.avatarPath), fit: BoxFit.cover),
-                ),
-                alignment: Alignment.bottomCenter,
-                child: Stack(
-                  children: <Widget>[
-                    // Stroked text as border.
-                    Text(
-                      player.name,
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.headline3!.fontSize,
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 6
-                          ..color = const Color(0xFF160F29),
-                      ),
-                    ),
-                    // Solid text as fill.
-                    Text(
-                      player.name,
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.headline3!.fontSize,
-                        color: const Color(0xFFF3DFC1),
-                      ),
-                    ),
-                  ],
-                ))));
+    return CheckboxListTile(
+            value: player.isChecked,
+            onChanged: (bool? value) {
+              setState(() {
+                player.isChecked = value!;
+              });
+            },
+            secondary: Image.asset(player.avatarPath),
+            title: Text(player.name),
+          );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            crossAxisCount: 2,
-          ),
-          shrinkWrap: true,
-          itemCount: _playersList.length,
-          itemBuilder: (context, index) {
-            return _createCards()[index];
-          }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
+      appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.person_add),
+            tooltip: 'Add player',
+            onPressed: () {
+              showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -192,9 +154,23 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 );
               });
-        },
-        child: const Icon(Icons.person_add),
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete player',
+            onPressed: () {
+              _removePlayers();
+            },
+          ),
+        ],
       ),
+      resizeToAvoidBottomInset: false,
+      body: ListView.builder(
+          itemCount: _playersList.length,
+          itemBuilder: (context, index) {
+            return _createCards()[index];
+          }),
     );
   }
 }
