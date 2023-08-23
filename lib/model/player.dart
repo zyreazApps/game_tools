@@ -16,7 +16,7 @@ class Player {
     Map<String, dynamic> jsonMap = jsonDecode(json);
     name = jsonMap['name'];
     avatarPath = jsonMap['avatarPath'];
-    isChecked = jsonMap['isChecked'];
+    isChecked = jsonMap['isChecked'] ?? false;
     score = jsonMap['score']
         .toString()
         .split(';')
